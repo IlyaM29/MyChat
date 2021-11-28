@@ -10,15 +10,15 @@ public class SimpleAuthService implements AuthService {
     }
 
     @Override
-    public String getNickByLoginAndPassword(String login, String password) {
+    public String getIdAndNickByLoginAndPassword(String login, String password) {
         try {
             connect();
             try (PreparedStatement ps = connection.prepareStatement("" +
-                    "select nick from users where login = ? and password = ?")) {
+                    "select id, nick from users where login = ? and password = ?")) {
                 ps.setString(1, login);
                 ps.setString(2, password);
                 ResultSet rs = ps.executeQuery();
-                if (rs.next()) return rs.getString(1);
+                if (rs.next()) return rs.getInt(1) + " " + rs.getString(2);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -26,6 +26,25 @@ public class SimpleAuthService implements AuthService {
             disconnect();
         }
         return null;
+    }
+
+    @Override
+    public void updateNick(int id, String newNick) {
+        try {
+            connect();
+            try (PreparedStatement ps = connection.prepareStatement("" +
+                    "update users set nick = ? where id = ?")) {
+                ps.setString(1, newNick);
+                ps.setInt(2, id);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            disconnect();
+        }
     }
 
     private void connect() throws SQLException {

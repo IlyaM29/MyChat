@@ -44,14 +44,19 @@ public class ChatClient {
                 try {
                     while (true) {
                         final String msgAuth = in.readUTF();
-                        if (msgAuth.equals("/end")) break;
-                        if (msgAuth.startsWith("/authok")) {
-                            authok = true;
-                            final String[] split = msgAuth.split("\\s");
-                            final String nick = split[1];
-                            chatWindow.addMessage("Успешная авторизация под ником " + nick);
-                            chatWindow.setTitle("Чат (" + nick + ")");
-                            break;
+                        if (msgAuth.startsWith("/")) {
+                            if (msgAuth.equals("/end")) break;
+                            if (msgAuth.startsWith("/authok")) {
+                                authok = true;
+                                final String[] split = msgAuth.split("\\s");
+                                final String id = split[1];
+                                final String nick = split[2];
+
+                                chatWindow.addMessage("Успешная авторизация под ником " + nick);
+
+                                chatWindow.setTitle("Чат (id: " + id + ")");
+                                break;
+                            }
                         } else {
                             chatWindow.addMessage(msgAuth);
                         }
@@ -68,8 +73,9 @@ public class ChatClient {
                             if ("/end".equals(message)) {
                                 break;
                             }
+                        } else {
+                            chatWindow.addMessage(message);
                         }
-                        chatWindow.addMessage(message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

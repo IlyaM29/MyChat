@@ -46,6 +46,10 @@ public class ChatServer {
         broadcastClientsList();
     }
 
+    public synchronized void updateClients() {
+        broadcastClientsList();
+    }
+
     public synchronized void unsubscribe(ClientHandler client) {
         clients.remove(client);
         broadcastClientsList();

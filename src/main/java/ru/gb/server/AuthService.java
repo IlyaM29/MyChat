@@ -1,5 +1,6 @@
 package ru.gb.server;
 
 public interface AuthService {
-    String getNickByLoginAndPassword(String login, String password);
+    String getIdAndNickByLoginAndPassword(String login, String password);
+    void updateNick(int id, String newNick);
 }
