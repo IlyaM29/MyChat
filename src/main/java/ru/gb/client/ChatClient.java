@@ -1,10 +1,10 @@
 package ru.gb.client;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ChatClient {
@@ -14,6 +14,7 @@ public class ChatClient {
     private final ChatWindow chatWindow;
     private boolean authok = false;
     private boolean connectok = true;
+    private String login;
 
     public ChatClient(ChatWindow chatWindow) {
         this.chatWindow = chatWindow;
@@ -50,7 +51,10 @@ public class ChatClient {
                                 authok = true;
                                 final String[] split = msgAuth.split("\\s");
                                 final String id = split[1];
-                                final String nick = split[2];
+                                login = split[2];
+                                final String nick = split[3];
+
+                                printHistory(login);
 
                                 chatWindow.addMessage("Успешная авторизация под ником " + nick);
 
@@ -75,15 +79,62 @@ public class ChatClient {
                             }
                         } else {
                             chatWindow.addMessage(message);
+                            writeHistory(login, message);
                         }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
                     closeConnection();
-//                    System.exit(0);
                 }
             }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printHistory(String login) {
+        File file = new File("history_" + login + ".txt");
+        try {
+            System.out.println(file.createNewFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<String> historyMsg = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("history_" + login + ".txt"))) {
+            String str;
+            for (int i = 0; i < 100; i++) {
+                if ((str = reader.readLine()) != null) {
+                    historyMsg.add(str);
+                } else {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(historyMsg);
+        for (String msg : historyMsg) {
+            chatWindow.addMessage(msg);
+        }
+    }
+
+    private void writeHistory(String login, String message) {
+        File file = new File("history_" + login + ".txt");
+        List<String> temp = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String str;
+            while ((str = reader.readLine()) != null) {
+                temp.add(str);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(message + "\n");
+            for (String m : temp) {
+                writer.write(m + "\n");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

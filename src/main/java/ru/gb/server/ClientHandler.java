@@ -75,7 +75,7 @@ public class ClientHandler {
                         if (!server.isNickBusy(id_nick[1])) {
                             this.id = Integer.parseInt(id_nick[0]);
                             this.nick = id_nick[1];
-                            sendMessage("/authok " + id + " " + nick);
+                            sendMessage("/authok " + id + " " + split[1] + " " + nick);
                             server.subscribe(this);
                             server.broadcast(this.nick + " зашел в чат");
                             break;
@@ -137,9 +137,5 @@ public class ClientHandler {
 
     public String getNick() {
         return nick;
-    }
-
-    public int getId() {
-        return id;
     }
 }
