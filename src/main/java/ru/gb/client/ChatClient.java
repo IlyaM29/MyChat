@@ -44,7 +44,12 @@ public class ChatClient {
             new Thread(() -> {
                 try {
                     while (true) {
-                        final String msgAuth = in.readUTF();
+                        final String msgAuth;
+                        if (in != null) {
+                            msgAuth = in.readUTF();
+                        } else {
+                            break;
+                        }
                         if (msgAuth.startsWith("/")) {
                             if (msgAuth.equals("/end")) break;
                             if (msgAuth.startsWith("/authok")) {
@@ -67,7 +72,12 @@ public class ChatClient {
                     }
                     while (true) {
                         if (!connectok) break;
-                        final String message = in.readUTF();
+                        final String message;
+                        if (in != null) {
+                            message = in.readUTF();
+                        } else {
+                            break;
+                        }
                         if (message.startsWith("/")) {
                             if (message.startsWith("/clients")) {
                                 String[] tokens = message.replace("/clients", "").split(" ");

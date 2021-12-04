@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatServer {
 
@@ -12,6 +15,7 @@ public class ChatServer {
 
     private final AuthService authService;
     private final List<ClientHandler> clients;
+    private Boolean active = true;
 
     public ChatServer() {
 
@@ -19,10 +23,16 @@ public class ChatServer {
         this.clients = new ArrayList<>();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)){
-            while (true) {
+            new Thread(() -> {
+                Scanner in = new Scanner(System.in);
+                if (in.nextLine().equals("/end")) active = false;
+            }).start();
+            ExecutorService executorService = Executors.newCachedThreadPool();
+            while (active) {
                 Socket socket = serverSocket.accept();
-                new ClientHandler(socket, this);
+                new ClientHandler(socket, this, executorService);
             }
+            executorService.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }

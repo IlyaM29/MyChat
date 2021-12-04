@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 
 public class ClientHandler {
 
@@ -16,7 +17,7 @@ public class ClientHandler {
     private boolean connectok = true;
 
 
-    public ClientHandler(Socket socket, ChatServer server) {
+    public ClientHandler(Socket socket, ChatServer server, ExecutorService executorService) {
         try {
             this.nick = "";
             this.server = server;
@@ -24,14 +25,16 @@ public class ClientHandler {
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
 
-            new Thread(() -> {
+            executorService.execute(() -> {
                 try {
                     authenticate();
                     readMessages();
                 } finally {
                     closeConnection();
                 }
-            }).start();
+            });
+//            new Thread(() -> {
+//            }).start();
 
         } catch (IOException e) {
             throw new RuntimeException(e);
