@@ -33,6 +33,7 @@ public class ChatWindow extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
+        textArea.setBackground(Color.WHITE);
         add(textArea, BorderLayout.CENTER);
         add(scrollPane, BorderLayout.EAST);
         Dimension scrollPanelSize = new Dimension(100, 100);
