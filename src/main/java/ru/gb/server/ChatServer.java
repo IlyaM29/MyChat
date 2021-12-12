@@ -1,5 +1,8 @@
 package ru.gb.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ChatServer {
+
+    private static final Logger logger = LogManager.getLogger(ChatServer.class);
 
     public static final int PORT = 8189;
 
@@ -23,6 +28,7 @@ public class ChatServer {
         this.clients = new ArrayList<>();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)){
+            logger.info("Server started");
             new Thread(() -> {
                 Scanner in = new Scanner(System.in);
                 if (in.nextLine().equals("/end")) active = false;
@@ -31,11 +37,14 @@ public class ChatServer {
             while (active) {
                 Socket socket = serverSocket.accept();
                 new ClientHandler(socket, this, executorService);
+                logger.info("Client connected");
             }
             executorService.shutdown();
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e);
         }
+        logger.info("Server stopped");
     }
 
     public AuthService getAuthService() {
@@ -53,6 +62,7 @@ public class ChatServer {
 
     public synchronized void subscribe(ClientHandler client) {
         clients.add(client);
+        logger.info("{} subscribe", client.getNick());
         broadcastClientsList();
     }
 
@@ -62,6 +72,7 @@ public class ChatServer {
 
     public synchronized void unsubscribe(ClientHandler client) {
         clients.remove(client);
+        logger.info("{} unsubscribe", client.getNick());
         broadcastClientsList();
     }
 
